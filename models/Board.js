@@ -10,7 +10,7 @@ module.exports = function (Sequelize, DataTypes) {
         like: { type: DataTypes.INTEGER },
     });
     Board.associate = (models) => {
-        Products.belongsTo(
+        Board.belongsTo(
             models.User,
             { as: 'Owner', foreignKey: 'user_id', targetKey: 'id' }
         );
