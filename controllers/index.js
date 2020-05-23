@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router()
 
-// router.use('/api/user', require('./user'))
+router.use('/account/', require('./account'))
 
 module.exports = router;
