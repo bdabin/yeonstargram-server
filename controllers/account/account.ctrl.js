@@ -29,7 +29,11 @@ exports.post_login = (req, res) => {
     .then(data => {
       if (data) {
         if (data.password === passwordHash(req.body.password)) {
-          res.send(200, '로그인 성공')
+          req.session.isLogin = true
+          req.session.username = data.username
+          req.session.save(() => {
+            res.send(200, req.session.username + '님, 로그인 성공')
+          })
         } else {
           res.send(400, '비밀번호가 일치하지 않습니다')
         }

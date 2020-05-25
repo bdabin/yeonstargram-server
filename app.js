@@ -2,6 +2,7 @@ const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const db = require('./models');
+const session = require('express-session')
 
 class App {
     constructor() {
@@ -39,6 +40,11 @@ class App {
         this.app.use(logger('dev'));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
+        this.app.use(session({
+            secret: 'ambc@!vsmkv#!&*!#EDNAnsv#!$()_*#@',
+            resave: false,
+            saveUninitialized: true
+        }));
 
     }
 
