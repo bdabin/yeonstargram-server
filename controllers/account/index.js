@@ -7,5 +7,3 @@ router.post('/join', ctrl.post_join);
 router.post('/login', ctrl.post_login);
 
 module.exports = router;
-
-
