@@ -1,6 +1,22 @@
 const models = require('../../models')
 const passwordHash = require('../../helpers/passwordHash');
 
+exports.get_is_login = (req, res) => {
+  if(req.session.isLogin){
+    const userData = models.User.findOne({where:{id:req.session.userId}}).then(data => {
+      return {
+        id: data.id,
+        email:data.email,
+        username: data.username,
+        phone: data.phone
+      }
+    })
+    res.send(200, userData)
+  } else {
+    res.send(404, "로그인 중이 아닙니다")
+  }
+}
+
 exports.post_join = (req, res) => {
   if (!req.body.email || !req.body.password || !req.body.username) {
     res.send(400, '입력을 제대로 하지 않았습니다.')
@@ -30,7 +46,6 @@ exports.post_login = (req, res) => {
       if (data) {
         if (data.password === passwordHash(req.body.password)) {
           req.session.isLogin = true
-          req.session.username = data.username
           req.session.userId = data.id
           req.session.save(() => {
             res.send(200, data)
