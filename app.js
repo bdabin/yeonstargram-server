@@ -2,7 +2,10 @@ const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const db = require('./models');
-const session = require('express-session')
+const session = require('express-session');
+
+//... 후략
+
 
 class App {
     constructor() {
@@ -17,6 +20,7 @@ class App {
         // 라우팅
         this.getRouting();
 
+
     }
 
     dbConnection() {
@@ -27,7 +31,8 @@ class App {
             })
             .then(() => {
                 console.log('DB Sync complete.');
-                // return db.sequelize.sync();
+                return db.sequelize.sync();
+                // return db.sequelize.drop();
             })
             .catch(err => {
                 console.error('Unable to connect to the database:', err);
@@ -43,12 +48,16 @@ class App {
         this.app.use(session({
             secret: 'ambc@!vsmkv#!&*!#EDNAnsv#!$()_*#@',
             resave: false,
-            saveUninitialized: true
+            saveUninitialized: true,
+            cookie: {
+                maxAge: 2000 * 60 * 60 // 지속시간 2시간
+            }
         }));
 
     }
 
     getRouting() {
+
         this.app.use(require('./controllers'))
     }
 
