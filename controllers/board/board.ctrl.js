@@ -1,16 +1,10 @@
 const models = require('../../models')
 
 exports.get_board = (req, res) => {
-  // const Board = models.Board.findAll({
-  //   include:[
-  //     {
-  //       model:User,
-  //       as:'writers'
-  //     }
-  //   ]
-  // })
-  // res.send(200 ,Board);
-
+  models.Board.findAll({order: [['id', 'DESC']]})
+    .then(data => {
+      if(data) res.status(200).json(data)
+    })
 }
 
 

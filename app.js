@@ -51,6 +51,7 @@ class App {
             cookie: {
                 maxAge: 2000 * 60 * 60 //지속시간 2시간
             },
+            // 세션 DB 저장
             store: new SequelizeStore({
                 db: db.sequelize,
             }),

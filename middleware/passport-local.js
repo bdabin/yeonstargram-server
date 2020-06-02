@@ -10,7 +10,8 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((user, done) => {
     console.log('deserializeUser');
-    done(null, user);
+    models.User.findOne({where:{id:user}})
+      .then(result => done(null, result))
 });
 
 
