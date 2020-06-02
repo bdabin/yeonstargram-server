@@ -2,7 +2,10 @@ const express = require('express');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const db = require('./models');
-const session = require('express-session')
+
+//passport 로그인 관련
+const passport = require('passport');
+const session = require('express-session');
 
 class App {
     constructor() {
@@ -11,12 +14,14 @@ class App {
         // db 접속
         this.dbConnection();
 
+        // 세션 셋팅
+        this.setSession();
+
         // 미들웨어 셋팅
         this.setMiddleWare();
 
         // 라우팅
         this.getRouting();
-
     }
 
     dbConnection() {
@@ -34,17 +39,36 @@ class App {
             });
     }
 
+
+    setSession() {
+
+        const SequelizeStore = require('connect-session-sequelize')(session.Store);
+
+        this.app.sessionMiddleWare = session({
+            secret: 'fwafwakln21@$!*!@%',
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                maxAge: 2000 * 60 * 60 //지속시간 2시간
+            },
+            store: new SequelizeStore({
+                db: db.sequelize,
+            }),
+        });
+        this.app.use(this.app.sessionMiddleWare);
+
+    }
+
     setMiddleWare() {
 
         // 미들웨어 셋팅
         this.app.use(logger('dev'));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
-        this.app.use(session({
-            secret: 'ambc@!vsmkv#!&*!#EDNAnsv#!$()_*#@',
-            resave: false,
-            saveUninitialized: true
-        }));
+
+        //passport 적용
+        this.app.use(passport.initialize());
+        this.app.use(passport.session());
 
     }
 

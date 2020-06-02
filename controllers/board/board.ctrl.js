@@ -1,8 +1,15 @@
 const models = require('../../models')
 
-exports.get_board = async (req, res) => {
-  const Board = await models.Board.findAll({})
-  res.send(Board);
+exports.get_board = (req, res) => {
+  // const Board = models.Board.findAll({
+  //   include:[
+  //     {
+  //       model:User,
+  //       as:'writers'
+  //     }
+  //   ]
+  // })
+  // res.send(200 ,Board);
 
 }
 

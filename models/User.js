@@ -11,5 +11,6 @@ module.exports = function (Sequelize, DataTypes) {
     User.beforeCreate((user, _) => {
         user.password = passwordHash(user.password);
     });
+    
     return User
 }
