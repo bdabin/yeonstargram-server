@@ -1,9 +1,18 @@
 const models = require('../../models')
 
 exports.get_board = (req, res) => {
-  models.Board.findAll({order: [['id', 'DESC']]})
+  models.Board.findAll(
+    { 
+      include : 
+      [{
+          model:models.User, 
+          attributes: { exclude: ["password"] }, as:'Writer'
+      }]
+    })
     .then(data => {
-      if(data) res.status(200).json(data)
+      if(data) {
+        res.status(200).json(data)
+      }
     })
 }
 

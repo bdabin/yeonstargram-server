@@ -1,7 +1,8 @@
 const passwordHash = require('../helpers/passwordHash');
 
+
 module.exports = function (Sequelize, DataTypes) {
-    var User = Sequelize.define('User', {
+    const User = Sequelize.define('User', {
         email: { type: DataTypes.STRING },
         password: { type: DataTypes.STRING },
         username: { type: DataTypes.STRING },
@@ -11,6 +12,20 @@ module.exports = function (Sequelize, DataTypes) {
     User.beforeCreate((user, _) => {
         user.password = passwordHash(user.password);
     });
+
+    User.associate = (models) => {
+        User.hasMany(
+            models.Board,
+            {
+                as: 'Board',
+                foreignKey: 'writer',
+                sourceKey: 'id',
+                onDelete: 'CASCADE'
+            }
+        )
+        
+    }
+
     
     return User
 }

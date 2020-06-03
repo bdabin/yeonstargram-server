@@ -1,4 +1,3 @@
-
 module.exports = function (Sequelize, DataTypes) {
     const Board = Sequelize.define('Board', {
         id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -9,7 +8,7 @@ module.exports = function (Sequelize, DataTypes) {
     Board.associate = (models) => {
         Board.belongsTo(
             models.User,
-            { as: 'Owner', foreignKey: 'writer', targetKey: 'id' }
+            { as: 'Writer', foreignKey: 'writer', targetKey: 'id' }
         );
     }
     return Board
