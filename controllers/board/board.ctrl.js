@@ -7,6 +7,37 @@ exports.get_board = async (req, res) => {
 }
 
 
+exports.get_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          'Memo'
+        ]
+      });
+    res.send(200, Board);
+    console.log(Board);
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.post_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findByPk(req.params.id);
+    await Board.createMemo(req.body)
+    res.send(200, Board)
+  } catch (e) {
+    console.log(e);
+  }
+
+}
+
+
 exports.post_board = (req, res) => {
 
   if (req.body.title === '' || req.body.description === '') {
@@ -28,7 +59,7 @@ exports.get_edit = (req, res) => {
     }
   ).then((Board) => {
     res.send(Board);
-    console.log(Board);
+    // console.log(Board);
 
   });
 
