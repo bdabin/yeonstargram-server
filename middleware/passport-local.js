@@ -10,7 +10,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((user, done) => {
     console.log('deserializeUser');
-    models.User.findOne({where:{id:user}})
+    models.User.findOne({where:{id:user}, attributes: {exclude:['password']} })
       .then(result => done(null, result))
 });
 

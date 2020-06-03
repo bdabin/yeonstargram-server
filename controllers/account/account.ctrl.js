@@ -3,9 +3,7 @@ const models = require('../../models')
 // 로그인 조회
 exports.get_is_login = (req, res) => {
   if(req.user) {
-    const data = req.user.dataValues
-    delete data['password']
-    res.status(200).json(data)
+    res.status(200).json(req.user.dataValues)
   } else {
     res.status(404).send('로그인 중이 아닙니다')
   }
