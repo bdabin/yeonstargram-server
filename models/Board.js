@@ -8,42 +8,42 @@ module.exports = function (Sequelize, DataTypes) {
     Board.associate = models => {
 
         // 글 작성자
-        Board.belongsTo( models.User, { 
-            foreignKey: 'writer', 
-            targetKey: 'id' 
-        } );
+        Board.belongsTo(models.User, {
+            foreignKey: 'writer',
+            targetKey: 'id'
+        });
 
         // 좋아요
         Board.belongsToMany(models.User, {
             through: {
-                model:'Like',
-                unique:false
+                model: 'Like',
+                unique: false
             },
-            as:'like',
+            as: 'like',
             foreignKey: 'board',
             sourceKey: 'id',
-            constraints: false 
+            constraints: false
         })
 
         // 댓글
-        // Board.hasMany(models.Reply,{ 
-        //     as: 'reply', 
-        //     foreignKey: 'board_id', 
-        //     sourceKey: 'id', 
-        //     onDelete: 'CASCADE' 
-        // });
- 
+        Board.hasMany(models.Reply, {
+            as: 'Reply',
+            foreignKey: 'board_id',
+            sourceKey: 'id',
+            onDelete: 'CASCADE'
+        });
+
         // 태그 
         Board.belongsTo(models.Tag, {
-            foreignKey:'tag',
-            targetKey:'id'
-        }) 
+            foreignKey: 'tag',
+            targetKey: 'id'
+        })
 
         // 업로드 사진
         Board.belongsTo(models.Photo, {
-            foreignKey:'photo',
-            targetKey:'id'
-        }) 
+            foreignKey: 'photo',
+            targetKey: 'id'
+        })
     }
 
     return Board

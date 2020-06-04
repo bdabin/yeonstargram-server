@@ -1,23 +1,57 @@
 const models = require('../../models')
 
+exports.get_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          'Reply', {
+            model: models.User,
+            foreignKey: 'writer',
+            attributes: { exclude: ["password"] },
+          }
+        ]
+      });
+    res.send(200, Board);
+    console.log(Board);
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.post_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findByPk(req.params.id);
+    await Board.createReply(req.body)
+    res.send(200, Board)
+  } catch (e) {
+    console.log(e);
+  }
+
+}
 exports.get_board = (req, res) => {
   models.Board.findAll(
-    { 
-      attributes:{ exclude: ['writer']},
-      include : [
+    {
+      attributes: { exclude: ['writer'] },
+      include: [
         {
-          model:models.User, 
-          foreignKey:'writer',
+          model: models.User,
+          foreignKey: 'writer',
           attributes: { exclude: ["password"] },
         },
         {
-          association:'like',
-          attributes:[['id', 'user_id'],'username'],
+          association: 'like',
+          attributes: [['id', 'user_id'], 'username'],
         }
-      ]}
-      )
+      ]
+    }
+  )
     .then(data => {
-      if(data) {
+      if (data) {
         res.status(200).json(data)
       }
     })
@@ -37,6 +71,7 @@ exports.post_board = (req, res) => {
     res.send(200, data)
   })
 }
+
 
 exports.get_edit = (req, res) => {
   models.Board.findOne(
@@ -82,15 +117,15 @@ exports.post_like = async (req, res) => {
   try {
     const board = await models.Board.findByPk(req.body.board_id)
     const user = await models.User.findByPk(req.body.user_id)
-  
+
     const status = board.addLike(user)
     res.json({
       status
     })
-  } catch(err) {
+  } catch (err) {
     res.status(400).send(err)
   }
 
- 
-  
+
+
 }
