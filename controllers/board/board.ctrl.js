@@ -3,12 +3,19 @@ const models = require('../../models')
 exports.get_board = (req, res) => {
   models.Board.findAll(
     { 
-      include : 
-      [{
+      attributes:{ exclude: ['writer']},
+      include : [
+        {
           model:models.User, 
-          attributes: { exclude: ["password"] }, as:'Writer'
-      }]
-    })
+          foreignKey:'writer',
+          attributes: { exclude: ["password"] },
+        },
+        {
+          association:'like',
+          attributes:[['id', 'user_id'],'username'],
+        }
+      ]}
+      )
     .then(data => {
       if(data) {
         res.status(200).json(data)
@@ -69,4 +76,21 @@ exports.get_delete = (req, res) => {
     res.send(200)
   });
 
+}
+
+exports.post_like = async (req, res) => {
+  try {
+    const board = await models.Board.findByPk(req.body.board_id)
+    const user = await models.User.findByPk(req.body.user_id)
+  
+    const status = board.addLike(user)
+    res.json({
+      status
+    })
+  } catch(err) {
+    res.status(400).send(err)
+  }
+
+ 
+  
 }
