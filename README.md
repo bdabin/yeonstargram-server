@@ -1,60 +1,86 @@
 # Yeonstargram express SERVER
-
-서버 실행
+  
+  
+서버 실행  
+  
+  
 ```
   npm start
 ```
-
-## 회원관련
-
-### [GET] /account
-
-Request
-
+  
+  
+## 회원관련  
+  
+  
+  
+  
+### [GET] /account  
+  
+  
+Request  
+  
+  
 ```
  {
 
  }
 ```
-
-Response
-
+  
+  
+Response  
+  
+  
 ```
   {
-   email,
-   username,
-   phone 
+    email,
+    username,
+    phone 
   }
 ```
-
-200 : 성공
-404 : 로그인 중이 아닏 때
-
-
-### [POST] /account/login
-
-Request
-
+  
+  
+200 : 성공  
+404 : 로그인 중이 아닏 때  
+  
+  
+  
+  
+### [POST] /account/login  
+  
+  
+Request  
+  
+  
 ```
   {
     email:'',
     password:''
   }
 ```
-
-Response
-
+  
+  
+Response  
+  
+  
 ```
   {
 
   }
 ```
-
-200 : 성공
-
-
-### [POST] /account/join
-
+  
+  
+200 : 성공 - 세션처리  
+  
+  
+  
+  
+### [POST] /account/join  
+  
+  
+  
+Request  
+  
+  
 ```
   {
     email : '',
@@ -63,11 +89,52 @@ Response
     phone : ''
   }
 ```
+  
+  
+Response  
+  
+  
+```
+  {
 
-200 : 성공
-400 : 이미 가입된 이메일
+  }
+```
+  
+  
+200 : 성공  
+400 : 이미 가입된 이메일  
+  
+  
+  
+  
+### [POST] /account/logout  
+  
+  
+Request  
+  
+  
+```
+ {
 
+ }
+```
+  
+  
+Response  
+  
+  
+```
+  {
 
-### DB 관계 구조
-
-![erd_yeonstargram](./erd.png)
+  }
+```
+  
+  
+200 : 성공 - 세션처리  
+  
+  
+  
+### DB 관계 구조  
+  
+![erd_yeonstargram](./erd.png)  
+  
