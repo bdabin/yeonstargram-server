@@ -1,28 +1,72 @@
-# Yeonstargram DB MODEL
+# Yeonstargram express SERVER
 
-## USER 
+서버 실행
+```
+  npm start
+```
+
+## 회원관련
+
+### [GET] /account
+
+Request
+
 ```
  {
-   email : '',
-   password : '',
-   username:'',
-   phone:''
 
  }
 ```
 
-### BOARD
+Response
 
 ```
   {
-    id: 0,
-    title:'',
-    description:'',
-    writer:'',
-    created_date:'',
-    like:0,
+   email,
+   username,
+   phone 
   }
 ```
+
+200 : 성공
+404 : 로그인 중이 아닏 때
+
+
+### [POST] /account/login
+
+Request
+
+```
+  {
+    email:'',
+    password:''
+  }
+```
+
+Response
+
+```
+  {
+
+  }
+```
+
+200 : 성공
+
+
+### [POST] /account/join
+
+```
+  {
+    email : '',
+    password : '',
+    username : '',
+    phone : ''
+  }
+```
+
+200 : 성공
+400 : 이미 가입된 이메일
+
 
 ### DB 관계 구조
 
