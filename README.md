@@ -14,7 +14,7 @@
   
   
   
-### [GET] /account  
+### [GET] /api/account  
   
   
 Request  
@@ -45,7 +45,7 @@ Response
   
   
   
-### [POST] /account/login  
+### [POST] /api/account/login  
   
   
 Request  
@@ -74,7 +74,7 @@ Response
   
   
   
-### [POST] /account/join  
+### [POST] /api/account/join  
   
   
   
@@ -107,7 +107,7 @@ Response
   
   
   
-### [POST] /account/logout  
+### [POST] /api/account/logout  
   
   
 Request  
