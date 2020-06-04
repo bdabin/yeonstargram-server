@@ -9,6 +9,7 @@ router.post('/write/:id', ctrl.post_edit);
 router.get('/write/:id', ctrl.get_edit);
 router.get('/delete/:id', ctrl.get_delete);
 router.post('/like', ctrl.post_like);
+router.delete('/like', ctrl.delete_like);
 
 module.exports = router;
 

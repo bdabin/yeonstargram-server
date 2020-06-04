@@ -90,7 +90,18 @@ exports.post_like = async (req, res) => {
   } catch(err) {
     res.status(400).send(err)
   }
+}
 
- 
+exports.delete_like = async (req, res) => {
+  try {
+    const board = await models.Board.findByPk(req.body.board_id)
+    const user = await models.User.findByPk(req.body.user_id)
   
+    const status = board.removeLike(user)
+    res.json({
+      status
+    })
+  } catch(err) {
+    res.status(400).send(err)
+  }
 }
