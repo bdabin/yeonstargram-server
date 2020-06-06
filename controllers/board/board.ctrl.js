@@ -1,27 +1,5 @@
 const models = require('../../models')
 
-exports.get_comment = async (req, res) => {
-  try {
-    const Board = await models.Board.findOne(
-      {
-        where: {
-          id: req.params.id
-        },
-        include: [
-          'Reply', {
-            model: models.User,
-            foreignKey: 'writer',
-            attributes: { exclude: ["password"] },
-          }
-        ]
-      });
-    res.send(200, Board);
-    console.log(Board);
-
-  } catch (e) {
-    console.log(e);
-  }
-}
 
 exports.post_comment = async (req, res) => {
   try {
@@ -33,6 +11,37 @@ exports.post_comment = async (req, res) => {
   }
 
 }
+
+exports.get_comment = async (req, res) => {
+  try {
+
+    const data = await models.Board.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          {
+            model: models.Reply,
+            as: 'Reply',
+            attributes: { exclude: ['writer'] },
+            include: [
+              {
+                model: models.User,
+                as: 'User',
+                attributes: ['username'],
+              }
+            ]
+          },
+        ]
+      });
+    // res.send(200, Board);
+    res.status(200).json(data)
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 exports.get_board = (req, res) => {
   models.Board.findAll(
     {
@@ -80,7 +89,6 @@ exports.get_edit = (req, res) => {
     }
   ).then((Board) => {
     res.send(Board);
-    console.log(Board);
 
   });
 

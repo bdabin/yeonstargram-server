@@ -19,9 +19,10 @@ module.exports = function (Sequelize, DataTypes) {
 
         // 프로필 사진
         User.belongsTo(models.Photo, {
-            foreignKey:'profile',
-            targetKey:'id'
-        })  
+            foreignKey: 'profile',
+            targetKey: 'id'
+        })
+
 
         // 게시글
         // User.hasMany(models.Board, {
@@ -46,12 +47,12 @@ module.exports = function (Sequelize, DataTypes) {
         User.belongsToMany(models.User, {
             as: "follower",
             through: "Follow",
-            foreignKey: "to", 
+            foreignKey: "to",
             otherKey: "from"
         });
-        
+
     }
 
-    
+
     return User
 }
