@@ -2,7 +2,7 @@ const models = require('../../models')
 
 // 로그인 조회
 exports.get_is_login = (req, res) => {
-  if(req.user) {
+  if (req.user) {
     res.status(200).json(req.user.dataValues)
   } else {
     res.status(404).send('로그인 중이 아닙니다')
@@ -36,7 +36,7 @@ exports.post_join = (req, res) => {
 
 // 로그인
 exports.post_login = (req, res) => {
-  if(req.user) {
+  if (req.user) {
     res.status(200).send('로그인 성공')
   } else {
     res.status(404).send('BAD REQUEST')
@@ -46,7 +46,65 @@ exports.post_login = (req, res) => {
 // 로그아웃
 exports.post_logout = (req, res) => {
   req.logout()
-  req.session.save(()=> {
+  req.session.save(() => {
     res.status(200).send('로그아웃 완료 ')
   })
+}
+
+exports.get_mypage = async (req, res) => {
+  try {
+    const data = await models.User.findOne(
+      {
+        where: { id: req.params.id },
+        include: [
+          {
+            model: models.User,
+            as: 'Follower',
+            otherKey: 'to',
+            attributes: { exclude: ['to'] }
+          },
+          {
+            model: models.User,
+            as: 'Following',
+            otherKey: 'from',
+            attributes: { exclude: ['to'] }
+          }
+        ]
+      }
+    )
+    res.json(data);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+//팔로잉 
+exports.post_follow = async (req, res) => {
+  try {
+    const from = await models.User.findByPk(req.body.from)
+    const to = await models.User.findByPk(req.body.to)
+    const status = to.addFollower(from)
+
+    res.json({
+      status
+    })
+
+  } catch (e) {
+    res.status(400).send(e)
+    console.log(e);
+  }
+}
+
+
+exports.delete_follow = async (req, res) => {
+  try {
+    const from = await models.User.findByPk(req.body.from)
+    const to = await models.User.findByPk(req.body.to)
+
+    const status = to.removeFollower(from)
+    res.json(status)
+  } catch (e) {
+    console.log(e);
+
+  }
 }

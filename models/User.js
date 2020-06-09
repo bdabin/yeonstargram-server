@@ -43,12 +43,26 @@ module.exports = function (Sequelize, DataTypes) {
             constraints: false
         })
 
-        // 팔로우
+        // 팔로워
         User.belongsToMany(models.User, {
-            as: "follower",
-            through: "Follow",
+            through: {
+                model: "Follow"
+            },
+            as: "Follower",
             foreignKey: "to",
+            sourceKey: 'id',
             otherKey: "from"
+        });
+
+        // 팔로잉
+        User.belongsToMany(models.User, {
+            through: {
+                model: "Follow"
+            },
+            as: "Following",
+            foreignKey: "from",
+            sourceKey: 'id',
+            otherKey: "to"
         });
 
     }
