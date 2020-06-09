@@ -5,5 +5,20 @@ module.exports = function(Sequelize, DataTypes) {
     name: { type: DataTypes.STRING, allowNull: false },
   })
 
+
+  Tag.associate = models => {
+     // 태그 
+      Tag.belongsToMany(models.Board, {
+        through:{
+            model:'hashTag',
+            unique:false
+        },
+        as:'board',
+        foreignKey: 'tag',
+        sourceKey: 'id'
+    })
+  }
+ 
+
   return Tag
 }

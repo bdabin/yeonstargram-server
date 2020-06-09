@@ -16,7 +16,6 @@ exports.get_comment = async (req, res) => {
         ]
       });
     res.send(200, Board);
-    console.log(Board);
 
   } catch (e) {
     console.log(e);
@@ -58,18 +57,37 @@ exports.get_board = (req, res) => {
 }
 
 
-exports.post_board = (req, res) => {
+exports.post_board = async (req, res) => {
+  const description = req.body.description
+  const writer = req.body.writer
 
-  if (req.body.title === '' || req.body.description === '') {
+  if ( description === '') {
     res.send(404, '내용을 입력해주세요')
     return
   }
+  
+  let tagData = []
 
-  models.Board.create({
-    ...req.body,
-  }).then(data => {
-    res.send(200, data)
+  if(req.body.tag) {
+    const tags = req.body.tag.split(' ').map(tag => {
+      return new Promise((resolve,reject) => {
+        resolve(models.Tag.create({ 'name' : tag }))
+      })
+    })
+    const response = await Promise.all(tags)
+    tagData = response.map(data => {
+      return data.dataValues.id
+    })
+  }
+
+  const data = await models.Board.create({
+    writer,
+    description,
+    tag : tagData
   })
+
+  res.send(200, data)
+  
 }
 
 
