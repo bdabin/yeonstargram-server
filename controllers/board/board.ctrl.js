@@ -45,6 +45,10 @@ exports.get_board = (req, res) => {
         {
           association: 'like',
           attributes: [['id', 'user_id'], 'username'],
+        },
+        {
+          association: 'hashtag',
+          attributes:['id','name']
         }
       ]
     }
@@ -60,13 +64,12 @@ exports.get_board = (req, res) => {
 exports.post_board = async (req, res) => {
   const description = req.body.description
   const writer = req.body.writer
+  let tagData = []
 
   if ( description === '') {
     res.send(404, '내용을 입력해주세요')
     return
-  }
-  
-  let tagData = []
+  } 
 
   if(req.body.tag) {
     const tags = req.body.tag.split(' ').map(tag => {
@@ -80,13 +83,13 @@ exports.post_board = async (req, res) => {
     })
   }
 
-  const data = await models.Board.create({
-    writer,
-    description,
-    tag : tagData
+  const data = await models.Board.create({ writer,  description })
+
+  const result =  tagData.map(async tag => {
+    await data.addHashtag(tag)
   })
 
-  res.send(200, data)
+  res.send(200, result)
   
 }
 
