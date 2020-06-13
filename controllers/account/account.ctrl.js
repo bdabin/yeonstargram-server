@@ -1,5 +1,5 @@
 const models = require('../../models')
-
+const sequelize = require('sequelize')
 // 로그인 조회
 exports.get_is_login = (req, res) => {
   if (req.user) {
@@ -78,23 +78,48 @@ exports.get_mypage = async (req, res) => {
           },
           {
             model: models.User,
+            as: 'Following',
+            otherKey: 'from',
+          },
+          {
+            model: models.User,
             as: 'Follower',
             otherKey: 'to',
-            attributes: { exclude: ['to'] }
+          },
+        ]
+      },
+    )
+
+
+
+    res.json(data);
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.get_follow = async (req, res) => {
+  try {
+    const data = await models.User.findOne(
+      {
+        where: { id: req.params.id },
+        include: [
+          {
+            model: models.User,
+            as: 'Follower',
+            otherKey: 'to',
           },
           {
             model: models.User,
             as: 'Following',
             otherKey: 'from',
-            attributes: { exclude: ['to'] }
           },
-
         ]
       }
     )
     res.json(data);
   } catch (e) {
-    console.log(e);
+    res.status(400).send(e)
   }
 }
 
