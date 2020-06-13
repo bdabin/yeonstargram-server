@@ -34,9 +34,14 @@ module.exports = function (Sequelize, DataTypes) {
         });
 
         // 태그 
-        Board.belongsTo(models.Tag, {
-            foreignKey: 'tag',
-            targetKey: 'id'
+        Board.belongsToMany(models.Tag, {
+            through:{
+                model:'hashTag',
+                unique:false
+            },
+            as:'hashtag',
+            foreignKey: 'board',
+            sourceKey: 'id'
         })
 
         // 업로드 사진
