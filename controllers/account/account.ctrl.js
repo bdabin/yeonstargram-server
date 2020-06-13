@@ -67,57 +67,25 @@ exports.post_logout = (req, res) => {
 
 exports.get_mypage = async (req, res) => {
   try {
-    const data = await models.User.findOne(
-      {
-        where: { id: req.params.id },
-        include: [
-          {
-            model: models.Board,
-            as: 'BoardList',
-            foreignKey: 'writer'
-          },
-          {
-            model: models.User,
-            as: 'Following',
-            otherKey: 'from',
-          },
-          {
-            model: models.User,
-            as: 'Follower',
-            otherKey: 'to',
-          },
-        ]
-      },
-    )
+    const id = req.params.id
+    const user = await models.User.findOne({
+      where: { id },
+      attributes: ['username', 'id', 'email'],
+      include: [
+        {
+          model: models.Board,
+          as: 'BoardList'
+        }
+      ]
+    })
+    const follower = await user.countFollower()
+    const following = await user.countFollowing()
 
+    const result = JSON.parse(JSON.stringify(user))
+    result.follower = follower
+    result.following = following
+    res.json(result)
 
-
-    res.json(data);
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-exports.get_follow = async (req, res) => {
-  try {
-    const data = await models.User.findOne(
-      {
-        where: { id: req.params.id },
-        include: [
-          {
-            model: models.User,
-            as: 'Follower',
-            otherKey: 'to',
-          },
-          {
-            model: models.User,
-            as: 'Following',
-            otherKey: 'from',
-          },
-        ]
-      }
-    )
-    res.json(data);
   } catch (e) {
     res.status(400).send(e)
   }
