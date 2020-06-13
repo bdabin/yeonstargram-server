@@ -1,39 +1,6 @@
 const models = require('../../models')
 
-exports.get_comment = async (req, res) => {
-  try {
-    const Board = await models.Board.findOne(
-      {
-        where: {
-          id: req.params.id
-        },
-        include: [
-          'Reply', {
-            model: models.User,
-            foreignKey: 'writer',
-            attributes: { exclude: ["password"] },
-          }
-        ]
-      });
-    res.send(200, Board);
-    console.log(Board);
-
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-exports.post_comment = async (req, res) => {
-  try {
-    const Board = await models.Board.findByPk(req.params.id);
-    await Board.createReply(req.body)
-    res.send(200, Board)
-  } catch (e) {
-    console.log(e);
-  }
-
-}
-exports.get_board = (req, res) => {
+exports.get_boards = (req, res) => {
   models.Board.findAll(
     {
       attributes: { exclude: ['writer'] },
@@ -46,6 +13,10 @@ exports.get_board = (req, res) => {
         {
           association: 'like',
           attributes: [['id', 'user_id'], 'username'],
+        },
+        {
+          association: 'hashtag',
+          attributes:['id','name']
         }
       ]
     }
@@ -58,51 +29,85 @@ exports.get_board = (req, res) => {
 }
 
 
-exports.post_board = (req, res) => {
 
-  if (req.body.title === '' || req.body.description === '') {
+exports.get_board = async (req, res) => {
+  const response = await models.Board.findOne(
+    {
+      where: { id: req.params.id },
+      include:[{
+          association:'hashtag',
+          attributes:['id','name']
+      }]
+    }
+  )
+  
+  res.status(200).json(response)
+}
+
+exports.post_board = async (req, res) => {
+  const description = req.body.description
+  const writer = req.body.writer
+  let tagData = []
+
+  if ( description === '') {
     res.send(404, '내용을 입력해주세요')
     return
+  } 
+
+  if(req.body.tag) {
+    const tags = req.body.tag.split(' ').map(tag => {
+      return new Promise((resolve,reject) => {
+        resolve(models.Tag.create({ 'name' : tag }))
+      })
+    })
+    const response = await Promise.all(tags)
+    tagData = response.map(data => {
+      return data.dataValues.id
+    })
   }
 
-  models.Board.create({
-    ...req.body,
-  }).then(data => {
-    res.send(200, data)
+  const data = await models.Board.create({ writer,  description })
+
+  const result =  tagData.map(async tag => {
+    await data.addHashtag(tag)
   })
+
+  res.send(200, result)
+  
 }
 
+exports.put_board = async (req, res) => {
 
-exports.get_edit = (req, res) => {
-  models.Board.findOne(
-    {
-      where: { id: req.params.id }
-    }
-  ).then((Board) => {
-    res.send(Board);
-    console.log(Board);
+  // 게시글 수정
+  const board = await models.Board.findByPk(req.params.id)
+  await board.update({description:req.body.description})
 
-  });
+  // 새로 입력한 태그 생성&연결
+  const newTags = req.body.addTags
+  if(newTags.length > 0) {
+    newTags.map(async tag => {
+      await models.Tag.findOrCreate({where:{'name':tag}})
+        .then(async data => {
+          await board.addHashtag(data[0].id)
+        })
+    })
+  }
 
+  // 삭제된 태그 연결 해제
+  const removeTags = req.body.removeTags
+  if(removeTags.length > 0) {
+    removeTags.map(async tag => {
+      await models.Tag.findOne({where:{'name':tag}})
+        .then(async data => {
+          await board.removeHashtag(data)
+        })
+    })
+  }
+
+  res.send(200)
 }
 
-exports.post_edit = (req, res) => {
-  models.Board.update(
-    {
-      title: req.body.title,
-      description: req.body.description
-    },
-    {
-      where: { id: req.params.id }
-    }
-  ).then(() => {
-    res.send(200)
-  });
-
-}
-
-
-exports.get_delete = (req, res) => {
+exports.del_board = (req, res) => {
   models.Board.destroy({
     where: {
       id: req.params.id
@@ -139,4 +144,37 @@ exports.delete_like = async (req, res) => {
   } catch (err) {
     res.status(400).send(err)
   }
+}
+
+exports.get_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          'Reply', {
+            model: models.User,
+            foreignKey: 'writer',
+            attributes: { exclude: ["password"] },
+          }
+        ]
+      });
+    res.send(200, Board);
+
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+exports.post_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findByPk(req.params.id);
+    await Board.createReply(req.body)
+    res.send(200, Board)
+  } catch (e) {
+    console.log(e);
+  }
+
 }
