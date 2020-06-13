@@ -1,4 +1,4 @@
-module.exports = function(Sequelize, DataTypes) {
+module.exports = function (Sequelize, DataTypes) {
 
   const Photo = Sequelize.define('Photo', {
     id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
@@ -22,5 +22,5 @@ module.exports = function(Sequelize, DataTypes) {
     // })
   }
 
-  return Photo 
+  return Photo
 }

@@ -18,11 +18,24 @@ module.exports = function (Sequelize, DataTypes) {
     User.associate = models => {
 
         // 프로필 사진
-        User.belongsTo(models.Photo, {
-            foreignKey: 'profile',
+        // User.belongsTo(models.Photo, {
+        //     as: 'Profile',
+        //     foreignKey: 'profile',
+        //     targetKey: 'id'
+        // })
+
+        // ys 추가 프로필사진 유저 profile에 저장
+        // User.hasMany(models.User, {
+        //     as: 'Profile',
+        //     foreignKey: 'profile',
+        //     targetKey: 'id'
+        // })
+
+        User.hasMany(models.Board, {
+            as: "BoardList",
+            foreignKey: 'writer',
             targetKey: 'id'
         })
-
 
         // 게시글
         // User.hasMany(models.Board, {

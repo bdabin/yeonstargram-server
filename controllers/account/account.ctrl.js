@@ -51,12 +51,31 @@ exports.post_logout = (req, res) => {
   })
 }
 
+// exports.post_mypage = async (req, res) => {
+//   try {
+//     console.log(req.file);
+
+//     req.body.url = await (req.file) ? req.file.path : "";
+
+//     models.Photo.create(req.body);
+
+//   } catch (e) {
+//     console.log(e);
+
+//   }
+// }
+
 exports.get_mypage = async (req, res) => {
   try {
     const data = await models.User.findOne(
       {
         where: { id: req.params.id },
         include: [
+          {
+            model: models.Board,
+            as: 'BoardList',
+            foreignKey: 'writer'
+          },
           {
             model: models.User,
             as: 'Follower',
@@ -68,7 +87,8 @@ exports.get_mypage = async (req, res) => {
             as: 'Following',
             otherKey: 'from',
             attributes: { exclude: ['to'] }
-          }
+          },
+
         ]
       }
     )
