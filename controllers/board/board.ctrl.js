@@ -1,5 +1,46 @@
 const models = require('../../models')
 
+exports.post_comment = async (req, res) => {
+  try {
+    const Board = await models.Board.findByPk(req.params.id);
+    await Board.createReply(req.body)
+    res.send(200, Board)
+  } catch (e) {
+    console.log(e);
+  }
+
+}
+
+exports.get_comment = async (req, res) => {
+  try {
+
+    const data = await models.Board.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          {
+            model: models.Reply,
+            as: 'Reply',
+            attributes: { exclude: ['writer'] },
+            include: [
+              {
+                model: models.User,
+                as: 'User',
+                attributes: ['username'],
+              }
+            ]
+          },
+        ]
+      });
+    // res.send(200, Board);
+    res.status(200).json(data)
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 exports.get_boards = (req, res) => {
   models.Board.findAll(
     {
@@ -75,6 +116,7 @@ exports.post_board = async (req, res) => {
   res.send(200, result)
   
 }
+
 
 exports.put_board = async (req, res) => {
 
