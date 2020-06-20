@@ -9,12 +9,10 @@ router.post('/join', ctrl.post_join);
 router.post('/login', passport.authenticate('local'), ctrl.post_login);
 router.post('/logout', ctrl.post_logout)
 
+router.get('/follow/:id', ctrl.get_follow)
 router.post('/follow/:id', ctrl.post_follow)
 router.delete('/follow/:id', ctrl.delete_follow)
 
 router.get('/mypage/:id', ctrl.get_mypage)
-// router.post('/mypage/:id', upload.single('url'), ctrl.post_mypage)
-
-
 
 module.exports = router;
