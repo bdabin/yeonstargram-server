@@ -58,6 +58,11 @@ exports.get_boards = (req, res) => {
         {
           association: 'hashtag',
           attributes:['id','name']
+        },
+        {
+          model:models.Photo,
+          foreignKey:'photo',
+          attributes:['filter','url']
         }
       ]
     }
@@ -107,14 +112,13 @@ exports.post_board = async (req, res) => {
     })
   }
 
-  const data = await models.Board.create({ writer,  description })
+  const data = await models.Board.create({ writer,  description, photo: req.body.photo})
 
   const result =  tagData.map(async tag => {
     await data.addHashtag(tag)
   })
-
-  res.send(200, result)
   
+  res.send(200, result)
 }
 
 
