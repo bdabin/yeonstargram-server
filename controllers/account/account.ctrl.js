@@ -51,43 +51,57 @@ exports.post_logout = (req, res) => {
   })
 }
 
-// exports.post_mypage = async (req, res) => {
-//   try {
-//     console.log(req.file);
-
-//     req.body.url = await (req.file) ? req.file.path : "";
-
-//     models.Photo.create(req.body);
-
-//   } catch (e) {
-//     console.log(e);
-
-//   }
-// }
 
 exports.get_mypage = async (req, res) => {
   try {
     const id = req.params.id
+    const userId = req.user.id
     const user = await models.User.findOne({
       where: { id },
       attributes: ['username', 'id', 'email'],
       include: [
         {
           model: models.Board,
-          as: 'BoardList'
-        }
+          as: 'BoardList',
+        },
       ]
     })
+    const checkFollower = await user.getFollower({ where: { id: userId } })
     const follower = await user.countFollower()
     const following = await user.countFollowing()
 
     const result = JSON.parse(JSON.stringify(user))
     result.follower = follower
     result.following = following
+    result.checkFollower = checkFollower
     res.json(result)
 
   } catch (e) {
     res.status(400).send(e)
+  }
+}
+
+exports.get_follow = async (req, res) => {
+  try {
+    const data = await models.User.findOne(
+      {
+        where: {
+          id: req.params.id
+        },
+        include: [
+          {
+            association: 'Follower'
+          },
+          {
+            association: 'Following'
+          }
+        ]
+      }
+    );
+    res.status(200).json(data)
+  } catch (e) {
+    console.log(e);
+
   }
 }
 

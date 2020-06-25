@@ -15,8 +15,8 @@ router.post('/like', ctrl.post_like);
 router.delete('/like', ctrl.delete_like);
 
 // 댓글
-router.get('/comment/:id', ctrl.get_comment);
-router.post('/comment/:id', ctrl.post_comment);
+router.get('/:id/comment', ctrl.get_comment);
+router.post('/:id/comment', ctrl.post_comment);
 
 module.exports = router;
 
