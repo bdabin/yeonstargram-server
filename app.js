@@ -30,7 +30,7 @@ class App {
             .then(() => {
                 console.log('Connection has been established successfully.');
             })
-            .then(() => { 
+            .then(() => {
                 console.log('DB Sync complete.');
                 // return db.sequelize.sync();
             })
