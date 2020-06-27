@@ -63,6 +63,13 @@ exports.get_mypage = async (req, res) => {
         {
           model: models.Board,
           as: 'BoardList',
+          include: [
+            {
+              model: models.Photo,
+              as: 'Photo',
+              attributes: ['url', 'filter']
+            }
+          ]
         },
       ]
     })
