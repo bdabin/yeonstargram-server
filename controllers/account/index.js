@@ -14,5 +14,6 @@ router.post('/follow/:id', ctrl.post_follow)
 router.delete('/follow/:id', ctrl.delete_follow)
 
 router.get('/mypage/:id', ctrl.get_mypage)
+router.put('/mypage', ctrl.put_profile)
 
 module.exports = router;

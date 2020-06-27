@@ -58,7 +58,7 @@ exports.get_mypage = async (req, res) => {
     const userId = req.user.id
     const user = await models.User.findOne({
       where: { id },
-      attributes: ['username', 'id', 'email'],
+      attributes: ['username', 'id', 'email', 'intro'],
       include: [
         {
           model: models.Board,
@@ -71,6 +71,12 @@ exports.get_mypage = async (req, res) => {
             }
           ]
         },
+        {
+          model: models.Photo,
+          association: 'Profile',
+          targetKey: 'id',
+          attributes: ['url'],
+        }
       ]
     })
     const checkFollower = await user.getFollower({ where: { id: userId } })
@@ -137,6 +143,17 @@ exports.delete_follow = async (req, res) => {
 
     const status = to.removeFollower(from)
     res.json(status)
+  } catch (e) {
+    console.log(e);
+
+  }
+}
+
+exports.put_profile = async (req, res) => {
+  try {
+    const user = await models.User.findByPk(req.body.userId)
+    const data = await user.update({ intro: req.body.intro, profile: req.body.photo })
+    res.json(data)
   } catch (e) {
     console.log(e);
 

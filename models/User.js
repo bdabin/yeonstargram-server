@@ -7,7 +7,8 @@ module.exports = function (Sequelize, DataTypes) {
         email: { type: DataTypes.STRING },
         password: { type: DataTypes.STRING },
         username: { type: DataTypes.STRING },
-        phone: { type: DataTypes.STRING }
+        phone: { type: DataTypes.STRING },
+        intro: { type: DataTypes.TEXT }
     });
 
     // 비밀번호 암호화
@@ -17,19 +18,13 @@ module.exports = function (Sequelize, DataTypes) {
 
     User.associate = models => {
 
-        // 프로필 사진
-        // User.belongsTo(models.Photo, {
-        //     as: 'Profile',
-        //     foreignKey: 'profile',
-        //     targetKey: 'id'
-        // })
 
-        // ys 추가 프로필사진 유저 profile에 저장
-        // User.hasMany(models.User, {
-        //     as: 'Profile',
-        //     foreignKey: 'profile',
-        //     targetKey: 'id'
-        // })
+        // 프로필 사진
+        User.belongsTo(models.Photo, {
+            as: 'Profile',
+            foreignKey: 'profile',
+            targetKey: 'id'
+        })
 
         User.hasMany(models.Board, {
             as: "BoardList",
