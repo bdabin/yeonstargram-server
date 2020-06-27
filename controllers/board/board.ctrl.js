@@ -1,36 +1,40 @@
 const models = require('../../models')
 
 exports.get_boards = (req, res) => {
-  models.Board.findAll(
-    {
-      attributes: { exclude: ['writer'] },
-      include: [
-        {
-          model: models.User,
-          foreignKey: 'writer',
-          attributes: { exclude: ["password"] },
-        },
-        {
-          association: 'like',
-          attributes: [['id', 'user_id'], 'username'],
-        },
-        {
-          association: 'hashtag',
-          attributes:['id','name']
-        },
-        {
-          model:models.Photo,
-          foreignKey:'photo',
-          attributes:['filter','url']
-        }
-      ]
-    }
-  )
-    .then(data => {
-      if (data) {
-        res.status(200).json(data)
+    models.Board.findAll(
+      {
+        where:req.query.writer ? { 'writer' :req.query.writer } : undefined,
+        attributes: { exclude: ['writer'] },
+        
+        include: [
+          {
+            model: models.User,
+            foreignKey: 'writer',
+            attributes: { exclude: ["password"] },
+          },
+          {
+            association: 'like',
+            attributes: [['id', 'user_id'], 'username'],
+          },
+          {
+            association: 'hashtag',
+            attributes:['id','name']
+          },
+          {
+            model:models.Photo,
+            foreignKey:'photo',
+            attributes:['filter','url']
+          }
+        ]
       }
-    })
+    )
+      .then(data => {
+        if (data) {
+          res.status(200).json(data)
+        }
+      })
+  
+ 
 }
 
 
