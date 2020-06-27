@@ -66,12 +66,13 @@ exports.post_board = async (req, res) => {
   if (req.body.tag) {
     const tags = req.body.tag.split(' ').map(tag => {
       return new Promise((resolve, reject) => {
-        resolve(models.Tag.create({ 'name': tag }))
+        resolve(models.Tag.findOrCreate({ where:{ 'name': tag }}))
       })
     })
     const response = await Promise.all(tags)
+    
     tagData = response.map(data => {
-      return data.dataValues.id
+      return data[0].dataValues.id
     })
   }
 
@@ -213,4 +214,42 @@ exports.post_comment = async (req, res) => {
     console.log(e);
   }
 
+}
+
+exports.get_search = async (req,res) => {
+  try {
+    if(req.query.name === '') {
+      return
+    }
+    const keyword = "#" + req.query.name
+    console.log(keyword);
+    
+    const tag = await models.Tag.findOne({
+        where: {
+          'name': {
+            [models.Sequelize.Op.like] : "%" + keyword + "%"
+          }
+        },
+    })
+    if(tag) {
+      const board = await tag.getBoard({
+        include:[
+          {
+            model:models.Photo,
+            foreignKey:'photo',
+            attributes:['filter','url']
+          }
+        ]
+      })  
+
+      res.json(board)
+    } else {
+      res.json([])
+    }
+
+   
+  } catch(e) {
+    console.log(e);
+    
+  }
 }
