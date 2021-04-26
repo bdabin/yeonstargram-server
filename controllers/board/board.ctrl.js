@@ -253,3 +253,30 @@ exports.get_search = async (req,res) => {
     
   }
 }
+
+exports.get_serarchTag = async (req,res) => {
+  try {
+    if(req.query.name === '') {
+      return
+    }
+    const keyword = "#" + req.query.name
+    console.log(keyword);
+    
+    const tag = await models.Tag.findAll({
+        where: {
+          'name': {
+            [models.Sequelize.Op.like] : "%" + keyword + "%"
+          }
+        },
+    })
+    if(tag) {
+      res.status(200).json(tag)
+    } else {
+      res.status(200).json([])
+    }
+  } catch(e) {
+    console.log(e);
+    res.send(404)
+    
+  }
+}

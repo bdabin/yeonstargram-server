@@ -20,5 +20,7 @@ router.post('/:id/comment', ctrl.post_comment);
 
 router.get('/explore',ctrl.get_search)
 
+router.get('/explore/tag',ctrl.get_serarchTag)
+
 module.exports = router;
 
