@@ -1,160 +1,148 @@
-const models = require('../../models')
+const models = require('../../models');
 
 exports.get_boards = (req, res) => {
-    models.Board.findAll(
-      {
-        where:req.query.writer ? { 'writer' :req.query.writer } : undefined,
-        attributes: { exclude: ['writer'] },
-        
-        include: [
-          {
-            model: models.User,
-            foreignKey: 'writer',
-            attributes: { exclude: ["password"] },
-          },
-          {
-            association: 'like',
-            attributes: [['id', 'user_id'], 'username'],
-          },
-          {
-            association: 'hashtag',
-            attributes:['id','name']
-          },
-          {
-            model:models.Photo,
-            foreignKey:'photo',
-            attributes:['filter','url']
-          }
-        ]
-      }
-    )
-      .then(data => {
-        if (data) {
-          res.status(200).json(data)
-        }
-      })
-  
- 
-}
+	models.Board.findAll({
+		where: req.query.writer ? { writer: req.query.writer } : undefined,
+		attributes: { exclude: ['writer'] },
 
-
+		include: [
+			{
+				model: models.User,
+				foreignKey: 'writer',
+				attributes: { exclude: ['password'] }
+			},
+			{
+				association: 'like',
+				attributes: [['id', 'user_id'], 'username']
+			},
+			{
+				association: 'hashtag',
+				attributes: ['id', 'name']
+			},
+			{
+				model: models.Photo,
+				foreignKey: 'photo',
+				attributes: ['filter', 'url']
+			}
+		]
+	}).then((data) => {
+		if (data) {
+			res.status(200).json(data);
+		}
+	});
+};
 
 exports.get_board = async (req, res) => {
-  const response = await models.Board.findOne(
-    {
-      where: { id: req.params.id },
-      include: [{
-        association: 'hashtag',
-        attributes: ['id', 'name']
-      }]
-    }
-  )
+	const response = await models.Board.findOne({
+		where: { id: req.params.id },
+		include: [
+			{
+				association: 'hashtag',
+				attributes: ['id', 'name']
+			}
+		]
+	});
 
-  res.status(200).json(response)
-}
+	res.status(200).json(response);
+};
 
 exports.post_board = async (req, res) => {
-  const description = req.body.description
-  const writer = req.body.writer
-  let tagData = []
+	const description = req.body.description;
+	const writer = req.body.writer;
+	let tagData = [];
 
-  if (description === '') {
-    res.send(404, '내용을 입력해주세요')
-    return
-  }
+	if (description === '') {
+		res.send(404, '내용을 입력해주세요');
+		return;
+	}
 
-  if (req.body.tag) {
-    const tags = req.body.tag.split(' ').map(tag => {
-      return new Promise((resolve, reject) => {
-        resolve(models.Tag.findOrCreate({ where:{ 'name': tag }}))
-      })
-    })
-    const response = await Promise.all(tags)
-    
-    tagData = response.map(data => {
-      return data[0].dataValues.id
-    })
-  }
+	if (req.body.tag) {
+		const tags = req.body.tag.split(' ').map((tag) => {
+			return new Promise((resolve, reject) => {
+				resolve(models.Tag.findOrCreate({ where: { name: tag } }));
+			});
+		});
+		const response = await Promise.all(tags);
 
-  const data = await models.Board.create({ writer,  description, photo: req.body.photo})
+		tagData = response.map((data) => {
+			return data[0].dataValues.id;
+		});
+	}
 
-  const result = tagData.map(async tag => {
-    await data.addHashtag(tag)
-  })
-  
-  res.send(200, result)
-}
+	const data = await models.Board.create({ writer, description, photo: req.body.photo });
 
+	const result = tagData.map(async (tag) => {
+		await data.addHashtag(tag);
+	});
+
+	res.send(200, result);
+};
 
 exports.put_board = async (req, res) => {
+	// 게시글 수정
+	const board = await models.Board.findByPk(req.params.id);
+	await board.update({ description: req.body.description });
 
-  // 게시글 수정
-  const board = await models.Board.findByPk(req.params.id)
-  await board.update({ description: req.body.description })
+	// 새로 입력한 태그 생성&연결
+	const newTags = req.body.addTags;
+	if (newTags.length > 0) {
+		newTags.map(async (tag) => {
+			await models.Tag.findOrCreate({ where: { name: tag } }).then(async (data) => {
+				await board.addHashtag(data[0].id);
+			});
+		});
+	}
 
-  // 새로 입력한 태그 생성&연결
-  const newTags = req.body.addTags
-  if (newTags.length > 0) {
-    newTags.map(async tag => {
-      await models.Tag.findOrCreate({ where: { 'name': tag } })
-        .then(async data => {
-          await board.addHashtag(data[0].id)
-        })
-    })
-  }
+	// 삭제된 태그 연결 해제
+	const removeTags = req.body.removeTags;
+	if (removeTags.length > 0) {
+		removeTags.map(async (tag) => {
+			await models.Tag.findOne({ where: { name: tag } }).then(async (data) => {
+				await board.removeHashtag(data);
+			});
+		});
+	}
 
-  // 삭제된 태그 연결 해제
-  const removeTags = req.body.removeTags
-  if (removeTags.length > 0) {
-    removeTags.map(async tag => {
-      await models.Tag.findOne({ where: { 'name': tag } })
-        .then(async data => {
-          await board.removeHashtag(data)
-        })
-    })
-  }
-
-  res.send(200)
-}
+	res.send(200);
+};
 
 exports.del_board = (req, res) => {
-  models.Board.destroy({
-    where: {
-      id: req.params.id
-    }
-  }).then(() => {
-    res.send(200)
-  });
-
-}
+	models.Board.destroy({
+		where: {
+			id: req.params.id
+		}
+	}).then(() => {
+		res.send(200);
+	});
+};
 
 exports.post_like = async (req, res) => {
-  try {
-    const board = await models.Board.findByPk(req.body.board_id)
-    const user = await models.User.findByPk(req.body.user_id)
+	try {
+		const board = await models.Board.findByPk(req.body.board_id);
+		const user = await models.User.findByPk(req.body.user_id);
 
-    const status = board.addLike(user)
-    res.json({
-      status
-    })
-  } catch (err) {
-    res.status(400).send(err)
-  }
-}
+		const status = board.addLike(user);
+		res.json({
+			status
+		});
+	} catch (err) {
+		res.status(400).send(err);
+	}
+};
 
 exports.delete_like = async (req, res) => {
-  try {
-    const board = await models.Board.findByPk(req.body.board_id)
-    const user = await models.User.findByPk(req.body.user_id)
+	try {
+		const board = await models.Board.findByPk(req.body.board_id);
+		const user = await models.User.findByPk(req.body.user_id);
 
-    const status = board.removeLike(user)
-    res.json({
-      status
-    })
-  } catch (err) {
-    res.status(400).send(err)
-  }
-}
+		const status = board.removeLike(user);
+		res.json({
+			status
+		});
+	} catch (err) {
+		res.status(400).send(err);
+	}
+};
 
 // exports.get_comment = async (req, res) => {
 //   try {
@@ -186,97 +174,90 @@ exports.delete_like = async (req, res) => {
 //   }
 // }
 exports.get_comment = async (req, res) => {
-  try {
-
-    const data = await models.Reply.findAll(
-      {
-        where: {
-          board_id: req.params.id
-        },
-        include: {
-          association: 'User',
-          attributes: ['username']
-        }
-      });
-    // res.send(200, Board);
-    res.status(200).json(data)
-  } catch (e) {
-    console.log(e);
-  }
-}
+	try {
+		const data = await models.Reply.findAll({
+			where: {
+				board_id: req.params.id
+			},
+			include: {
+				association: 'User',
+				attributes: ['username']
+			}
+		});
+		// res.send(200, Board);
+		res.status(200).json(data);
+	} catch (e) {
+		console.log(e);
+	}
+};
 
 exports.post_comment = async (req, res) => {
-  try {
-    const Board = await models.Board.findByPk(req.params.id);
-    await Board.createReply(req.body)
-    res.send(200, Board)
-  } catch (e) {
-    console.log(e);
-  }
+	try {
+		const Board = await models.Board.findByPk(req.params.id);
+		await Board.createReply(req.body);
+		res.send(200, Board);
+	} catch (e) {
+		console.log(e);
+	}
+};
 
-}
+exports.get_search = async (req, res) => {
+	try {
+		if (req.query.name === '') {
+			return;
+		}
+		const keyword = '#' + req.query.name;
+		console.log(keyword);
 
-exports.get_search = async (req,res) => {
-  try {
-    if(req.query.name === '') {
-      return
-    }
-    const keyword = "#" + req.query.name
-    console.log(keyword);
-    
-    const tag = await models.Tag.findOne({
-        where: {
-          'name': {
-            [models.Sequelize.Op.like] : "%" + keyword + "%"
-          }
-        },
-    })
-    if(tag) {
-      const board = await tag.getBoard({
-        include:[
-          {
-            model:models.Photo,
-            foreignKey:'photo',
-            attributes:['filter','url']
-          }
-        ]
-      })  
+		const tag = await models.Tag.findOne({
+			where: {
+				name: {
+					[models.Sequelize.Op.like]: '%' + keyword + '%'
+				}
+			}
+		});
+		if (tag) {
+			const board = await tag.getBoard({
+				include: [
+					{
+						model: models.Photo,
+						foreignKey: 'photo',
+						attributes: ['filter', 'url']
+					}
+				]
+			});
 
-      res.json(board)
-    } else {
-      res.json([])
-    }
+			res.json(board);
+		} else {
+			res.json([]);
+		}
+	} catch (e) {
+		console.log(e);
+	}
+};
 
-   
-  } catch(e) {
-    console.log(e);
-    
-  }
-}
+exports.get_serarchTag = async (req, res) => {
+	try {
+		if (req.query.name === '') {
+			return;
+		}
+		const keyword = '#' + req.query.name;
+		console.log(keyword);
 
-exports.get_serarchTag = async (req,res) => {
-  try {
-    if(req.query.name === '') {
-      return
-    }
-    const keyword = "#" + req.query.name
-    console.log(keyword);
-    
-    const tag = await models.Tag.findAll({
-        where: {
-          'name': {
-            [models.Sequelize.Op.like] : "%" + keyword + "%"
-          }
-        },
-    })
-    if(tag) {
-      res.status(200).json(tag)
-    } else {
-      res.status(200).json([])
-    }
-  } catch(e) {
-    console.log(e);
-    res.send(404)
-    
-  }
-}
+		const tag = await models.Tag.findAll({
+			where: {
+				name: {
+					[models.Sequelize.Op.like]: '%' + keyword + '%'
+				}
+			}
+		});
+		if (tag) {
+			res.status(200).json(tag);
+		} else {
+			res.status(200).json([]);
+		}
+	} catch (e) {
+		console.log(e);
+		res.send(404);
+	}
+};

@@ -7,6 +7,5 @@ router.use('/api/account', require('./account'));
 router.use('/api/board', require('./board'));
 router.use('/api/photo', require('./photo'));
 router.use('/api/image', express.static(path.join(__dirname, '/../photos')));
-console.log(path.join(__dirname, '/../photos'));
 
 module.exports = router;

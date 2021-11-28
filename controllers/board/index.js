@@ -18,9 +18,8 @@ router.delete('/like', ctrl.delete_like);
 router.get('/:id/comment', ctrl.get_comment);
 router.post('/:id/comment', ctrl.post_comment);
 
-router.get('/explore',ctrl.get_search)
+router.get('/explore', ctrl.get_search);
 
-router.get('/explore/tag',ctrl.get_serarchTag)
+router.get('/explore/tag', ctrl.get_serarchTag);
 
 module.exports = router;
-
